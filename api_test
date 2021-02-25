@@ -1,0 +1,10 @@
+カーソルを合わせて「 ⌘ + ⌥ + R 」で HttpRequestを送信
+
+###
+
+POST http://localhost:8080
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/_img/graduates/graduates_idx_fujihira.jpg"
+}
