@@ -1,4 +1,4 @@
-use actix_web::{post, web, App, HttpServer, Responder};
+use actix_web::{http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder};
 use dotenv;
 
 mod errors;
@@ -12,8 +12,10 @@ use types::*;
 #[post("/")]
 async fn index(request_body: web::Json<DetectRequest>) -> impl Responder {
     let result = post_face(&request_body.url).await;
-    // TODO: エラー時にStatusCodeを付与する
-    web::Json(result)
+    match result {
+        Ok(ok) => HttpResponse::Ok().json(ok),
+        Err(err) => HttpResponse::build(StatusCode::from_u16(err.status_code).unwrap()).json(err),
+    }
 }
 
 #[actix_rt::main]
