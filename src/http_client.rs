@@ -1,4 +1,7 @@
-use actix_web::client::{Client, ClientRequest};
+use actix_web::{
+    client::{Client, ClientRequest},
+    http::header::CONTENT_TYPE,
+};
 use serde_json;
 use std::env;
 
@@ -25,8 +28,7 @@ fn make_request(method: &str) -> ClientRequest {
     let url = format!("{}/{}", endpoint, method);
     Client::new()
         .post(url)
-        // TODO: Content-Typeを設定するメソッドで設定する
-        .header("Content-Type", "application/json")
+        .header(CONTENT_TYPE, "application/json")
         .header("Ocp-Apim-Subscription-Key", key)
 }
 
