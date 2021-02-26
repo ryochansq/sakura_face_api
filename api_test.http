@@ -24,7 +24,7 @@ POST http://localhost:8080/detect_and_findsimilars
 content-type: application/json
 
 {
-  "url": "https://www.sakuragakuin.jp/image.php?tieid=46"
+  "url": "https://www.sakuragakuin.jp/_img/club/club_prowrestling_ph.jpg"
 }
 
 ### No face

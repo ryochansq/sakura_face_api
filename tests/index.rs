@@ -26,10 +26,11 @@ mod tests {
     #[actix_rt::test]
     async fn many_faces() {
         dotenv().ok();
-        let url = "https://www.sakuragakuin.jp/image.php?tieid=46";
-        let face_list = detect_and_findsimilars(url).await.unwrap().face_list;
-        assert_eq!(face_list.len(), 8);
-        let res = findsimilars(&face_list[0].faceId).await;
+        let url = "https://www.sakuragakuin.jp/_img/club/club_prowrestling_ph.jpg";
+        let res = detect_and_findsimilars(url).await.unwrap();
+        assert_eq!(res.face_list.len(), 2);
+        assert_eq!(res.similar_list.len(), 0);
+        let res = findsimilars(&res.face_list[0].faceId).await;
         println!("=== response ===");
         println!("{:?}", res);
         println!("=== response ===");
