@@ -1,0 +1,37 @@
+VSCodeで、拡張機能 REST Clientをインストール
+
+### Success
+
+POST http://localhost:8080/detect_and_findsimilars
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/_img/graduates/graduates_idx_fujihira.jpg"
+}
+
+### Failure
+
+POST http://localhost:8080/detect_and_findsimilars
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/"
+}
+
+### Many faces
+
+POST http://localhost:8080/detect_and_findsimilars
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/image.php?tieid=46"
+}
+
+### No face
+
+POST http://localhost:8080/detect_and_findsimilars
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/_img/common/common_header_logo_pc.png"
+}

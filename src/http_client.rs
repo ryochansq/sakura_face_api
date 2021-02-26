@@ -35,7 +35,7 @@ fn make_request(method: &str) -> ClientRequest {
 
 async fn detect(image_url: &str) -> Result<Vec<DetectedFace>, MyError> {
     let request = make_request("detect?recognitionModel=recognition_03");
-    let request_json = DetectRequest {
+    let request_json = DetectAndFindSimilarsRequest {
         url: String::from(image_url),
     };
 
@@ -55,7 +55,7 @@ async fn detect(image_url: &str) -> Result<Vec<DetectedFace>, MyError> {
     }
 }
 
-async fn find_similar(face_id: &str) -> Result<Vec<FindSimilarResponse>, MyError> {
+async fn find_similar_member(face_id: &str) -> Result<Vec<SimilarMember>, MyError> {
     let request = make_request("findsimilars");
     let request_json = FindSimilarRequest {
         faceId: String::from(face_id),
@@ -69,7 +69,8 @@ async fn find_similar(face_id: &str) -> Result<Vec<FindSimilarResponse>, MyError
     let response_body = response.body().await?;
 
     if status.is_success() {
-        Ok(from_slice::<Vec<FindSimilarResponse>>(&response_body)?)
+        let similar_face_list = from_slice::<Vec<SimilarFace>>(&response_body)?;
+        Ok(get_similar_member_list(similar_face_list))
     } else {
         let azure_error = serde_json::from_slice::<AzureError>(&response_body)?;
         Err(MyError {
@@ -80,8 +81,22 @@ async fn find_similar(face_id: &str) -> Result<Vec<FindSimilarResponse>, MyError
     }
 }
 
-pub async fn post_face(image_url: &str) -> Result<Vec<SimilarMember>, MyError> {
+pub async fn detect_and_findsimilars(
+    image_url: &str,
+) -> Result<DetectAndFindSimilarsResponse, MyError> {
     let face_list = detect(image_url).await?;
-    let similar_face_id_list = find_similar(&face_list[0].faceId).await?;
-    Ok(get_similar_member_list(similar_face_id_list))
+    let similar_list = if face_list.len() == 1 {
+        find_similar_member(&face_list[0].faceId).await?
+    } else {
+        vec![]
+    };
+    Ok(DetectAndFindSimilarsResponse {
+        face_list,
+        similar_list,
+    })
+}
+
+pub async fn findsimilars(face_id: &str) -> Result<FindSimilarsResponse, MyError> {
+    let similar_list = find_similar_member(face_id).await?;
+    Ok(FindSimilarsResponse { similar_list })
 }

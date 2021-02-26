@@ -1,22 +1,37 @@
 #[cfg(test)]
 mod tests {
     use dotenv::dotenv;
-    use sakura_face_api::http_client::post_face;
+    use sakura_face_api::http_client::{detect_and_findsimilars, findsimilars};
 
     #[actix_rt::test]
-    #[allow(unused_must_use)]
-    async fn success_post_face() {
+    async fn success_detect_and_findsimilars() {
         dotenv().ok();
         let url = "https://www.sakuragakuin.jp/_img/graduates/graduates_idx_fujihira.jpg";
-        post_face(url).await;
+        let res = detect_and_findsimilars(url).await;
+        println!("=== response ===");
+        println!("{:?}", res);
+        println!("=== response ===");
     }
 
     #[actix_rt::test]
-    #[should_panic]
-    #[allow(unused_must_use)]
     async fn fail_detect() {
         dotenv().ok();
         let wrong_url = "https://www.sakuragakuin.jp";
-        post_face(wrong_url).await;
+        let res = detect_and_findsimilars(wrong_url).await;
+        println!("=== response ===");
+        println!("{:?}", res);
+        println!("=== response ===");
+    }
+
+    #[actix_rt::test]
+    async fn many_faces() {
+        dotenv().ok();
+        let url = "https://www.sakuragakuin.jp/image.php?tieid=46";
+        let face_list = detect_and_findsimilars(url).await.unwrap().face_list;
+        assert_eq!(face_list.len(), 8);
+        let res = findsimilars(&face_list[0].faceId).await;
+        println!("=== response ===");
+        println!("{:?}", res);
+        println!("=== response ===");
     }
 }

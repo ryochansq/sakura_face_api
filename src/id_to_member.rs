@@ -1,6 +1,6 @@
 use crate::types::*;
 
-pub fn get_similar_member_list(similar_list: Vec<FindSimilarResponse>) -> Vec<SimilarMember> {
+pub fn get_similar_member_list(similar_list: Vec<SimilarFace>) -> Vec<SimilarMember> {
     similar_list
         .into_iter()
         .map(|x| SimilarMember {
