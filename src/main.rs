@@ -1,6 +1,7 @@
 use actix_web::{post, web, App, HttpServer, Responder};
 use dotenv;
 
+mod errors;
 mod http_client;
 mod id_to_member;
 mod types;

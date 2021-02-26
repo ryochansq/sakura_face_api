@@ -5,6 +5,7 @@ use actix_web::{
 use serde_json;
 use std::env;
 
+use crate::errors::*;
 use crate::id_to_member::get_similar_member_list;
 use crate::types::*;
 
@@ -37,19 +38,17 @@ async fn detect(image_url: &str) -> Result<Vec<DetectedFace>, MyError> {
     let request_json = DetectRequest {
         url: String::from(image_url),
     };
-    let mut response = request
-        .send_json(&request_json)
-        .await
-        .expect("DetectResponse Error");
-    let response_body = response.body().await.expect("Detect to body Error");
-    if response.status().is_success() {
-        Ok(serde_json::from_slice(&response_body).expect("Parse DetectResponse failed"))
-        // TODO: 顔が0個の時と2個以上の時のエラーハンドリング
+
+    let mut response = request.send_json(&request_json).await?;
+    let status = response.status();
+    let response_body = response.body().await?;
+
+    if status.is_success() {
+        Ok(serde_json::from_slice::<Vec<DetectedFace>>(&response_body)?)
     } else {
-        let azure_error = serde_json::from_slice::<AzureError>(&response_body)
-            .expect("Parse DetectResponse failed");
+        let azure_error = serde_json::from_slice::<AzureError>(&response_body)?;
         Err(MyError {
-            status_code: response.status().as_u16(),
+            status_code: status.as_u16(),
             code: azure_error.error.code,
             message: azure_error.error.message,
         })

@@ -32,21 +32,3 @@ pub struct SimilarMember {
     pub name: String,
     pub confidence: f32,
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AzureErrorBody {
-    pub code: Option<String>,
-    pub message: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AzureError {
-    pub error: AzureErrorBody,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MyError {
-    pub status_code: u16,
-    pub code: Option<String>,
-    pub message: Option<String>,
-}
