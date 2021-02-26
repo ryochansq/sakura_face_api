@@ -1,3 +1,4 @@
+VSCodeで、拡張機能 REST Clientをインストール
 カーソルを合わせて「 ⌘ + ⌥ + R 」で HttpRequestを送信
 
 ###
@@ -7,4 +8,13 @@ content-type: application/json
 
 {
   "url": "https://www.sakuragakuin.jp/_img/graduates/graduates_idx_fujihira.jpg"
+}
+
+###
+
+POST http://localhost:8080
+content-type: application/json
+
+{
+  "url": "https://www.sakuragakuin.jp/"
 }
