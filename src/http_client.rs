@@ -2,7 +2,7 @@ use actix_web::{
     client::{Client, ClientRequest},
     http::header::CONTENT_TYPE,
 };
-use serde_json;
+use serde_json::from_slice;
 use std::env;
 
 use crate::errors::*;
@@ -44,7 +44,7 @@ async fn detect(image_url: &str) -> Result<Vec<DetectedFace>, MyError> {
     let response_body = response.body().await?;
 
     if status.is_success() {
-        Ok(serde_json::from_slice::<Vec<DetectedFace>>(&response_body)?)
+        Ok(from_slice::<Vec<DetectedFace>>(&response_body)?)
     } else {
         let azure_error = serde_json::from_slice::<AzureError>(&response_body)?;
         Err(MyError {
@@ -63,15 +63,21 @@ async fn find_similar(face_id: &str) -> Result<Vec<FindSimilarResponse>, MyError
         maxNumOfCandidatesReturned: 3,
         mode: String::from("matchFace"),
     };
-    // TODO: エラーハンドリングする
-    let response = request
-        .send_json(&request_json)
-        .await
-        .expect("FindSimilarResponse Error")
-        .body()
-        .await
-        .expect("FindSimilar to body Error");
-    Ok(serde_json::from_slice(&response).expect("Parse FindSimilarResponse failed"))
+
+    let mut response = request.send_json(&request_json).await?;
+    let status = response.status();
+    let response_body = response.body().await?;
+
+    if status.is_success() {
+        Ok(from_slice::<Vec<FindSimilarResponse>>(&response_body)?)
+    } else {
+        let azure_error = serde_json::from_slice::<AzureError>(&response_body)?;
+        Err(MyError {
+            status_code: status.as_u16(),
+            code: azure_error.error.code,
+            message: azure_error.error.message,
+        })
+    }
 }
 
 pub async fn post_face(image_url: &str) -> Result<Vec<SimilarMember>, MyError> {
