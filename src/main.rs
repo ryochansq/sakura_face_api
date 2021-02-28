@@ -1,4 +1,6 @@
-use actix_web::{http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    http::StatusCode, post, web, web::Bytes, App, HttpResponse, HttpServer, Responder,
+};
 use dotenv;
 
 mod errors;
@@ -10,10 +12,8 @@ use http_client::{detect_and_findsimilars, findsimilars};
 use types::*;
 
 #[post("/detect_and_findsimilars")]
-async fn detect_and_findsimilars_api(
-    request_body: web::Json<DetectAndFindSimilarsRequest>,
-) -> impl Responder {
-    let result = detect_and_findsimilars(&request_body.url).await;
+async fn detect_and_findsimilars_api(image_binary: Bytes) -> impl Responder {
+    let result = detect_and_findsimilars(image_binary).await;
     match result {
         Ok(ok) => HttpResponse::Ok().json(ok),
         Err(err) => HttpResponse::build(StatusCode::from_u16(err.status_code).unwrap()).json(err),

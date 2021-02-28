@@ -1,0 +1,30 @@
+### VSCodeで、拡張機能 REST Clientをインストール
+@base_url = http://localhost:8080
+
+### Success
+
+POST {{base_url}}/detect_and_findsimilars
+content-type: application/octet-stream
+
+< images/fujihira.jpg
+
+### Failure
+
+POST {{base_url}}/detect_and_findsimilars
+content-type: application/octet-stream
+
+< test.rs
+
+### Two faces
+
+POST {{base_url}}/detect_and_findsimilars
+content-type: application/octet-stream
+
+< images/prowrestling.jpg
+
+### No face
+
+POST http://localhost:8080/detect_and_findsimilars
+content-type: application/json
+
+< images/logo.png

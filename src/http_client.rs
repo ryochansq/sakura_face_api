@@ -1,6 +1,7 @@
 use actix_web::{
     client::{Client, ClientRequest},
     http::header::CONTENT_TYPE,
+    web::Bytes,
 };
 use serde_json::from_slice;
 use std::env;
@@ -29,17 +30,16 @@ fn make_request(method: &str) -> ClientRequest {
     let url = format!("{}/{}", endpoint, method);
     Client::new()
         .post(url)
-        .header(CONTENT_TYPE, "application/json")
         .header("Ocp-Apim-Subscription-Key", key)
 }
 
-async fn detect(image_url: &str) -> Result<Vec<DetectedFace>, MyError> {
+async fn detect(image_binary: Bytes) -> Result<Vec<DetectedFace>, MyError> {
     let request = make_request("detect?recognitionModel=recognition_03");
-    let request_json = DetectAndFindSimilarsRequest {
-        url: String::from(image_url),
-    };
 
-    let mut response = request.send_json(&request_json).await?;
+    let mut response = request
+        .header(CONTENT_TYPE, "application/octet-stream")
+        .send_body(image_binary)
+        .await?;
     let status = response.status();
     let response_body = response.body().await?;
 
@@ -64,7 +64,10 @@ async fn find_similar_member(face_id: &str) -> Result<Vec<SimilarMember>, MyErro
         mode: String::from("matchFace"),
     };
 
-    let mut response = request.send_json(&request_json).await?;
+    let mut response = request
+        .header(CONTENT_TYPE, "application/json")
+        .send_json(&request_json)
+        .await?;
     let status = response.status();
     let response_body = response.body().await?;
 
@@ -82,9 +85,9 @@ async fn find_similar_member(face_id: &str) -> Result<Vec<SimilarMember>, MyErro
 }
 
 pub async fn detect_and_findsimilars(
-    image_url: &str,
+    image_binary: Bytes,
 ) -> Result<DetectAndFindSimilarsResponse, MyError> {
-    let face_list = detect(image_url).await?;
+    let face_list = detect(image_binary).await?;
     let similar_list = if face_list.len() == 1 {
         find_similar_member(&face_list[0].faceId).await?
     } else {
